@@ -181,6 +181,7 @@ def main():
     sys.exit(1)
 
   if current_rr != live_rr:
+    # Make an email here instead of this messiness
     print 'Alert! the RR changed.'
     print 'Save: %s\nLive:%s' % (current_rr, live_rr)
     print 'Need to update the Store now as well.'
