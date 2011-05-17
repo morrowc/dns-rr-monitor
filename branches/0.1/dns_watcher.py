@@ -203,7 +203,7 @@ def main():
   opts.add_option('-f', '--from', dest='fromaddr',
                   default=os.environ['USER'],
                   help='An address to send this alert From.')
-  
+
   opts.add_option('-l', '--log', dest='log',
                   default=LOG,
                   help='The destination file in which to log results.')
