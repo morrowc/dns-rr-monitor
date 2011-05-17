@@ -1,0 +1,16 @@
+#summary Introduction to the dns_rr_monitor.py program.
+
+= Introduction =
+
+A simple script that can monitor over time an RR. For example, if today:
+
+www.google.com IN TXT "192.168.0.1/32"
+
+and tomorrow:
+www.google.com IN TXT "192.168.0.2/32"
+
+Alert via email to a responsible party who cares about this change.
+
+= Details =
+
+the details are sparse, as the code is simple and the problem also is simple.
