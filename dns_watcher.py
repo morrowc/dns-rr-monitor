@@ -2,9 +2,12 @@
 #
 # Copyright 2011 Chris Morrow, All Rights Reserved.
 
-"""One-line documentation for dns_watcher module.
+"""Monitor a single RR per running instance, alert via email on change.
 
-A detailed description of dns_watcher.
+Monitor a give RR/Qtype:
+  www.google.com IN A
+Store the result over time, if there is change from the previous
+running instance, alert via email and store the resulting changed data.
 """
 
 __author__ = 'morrowc+gcode@ops-netman.net (Chris Morrow)'
