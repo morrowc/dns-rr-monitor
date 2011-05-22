@@ -20,7 +20,6 @@ import smtplib
 import subprocess
 import sys
 
-from datetime import datetime
 from email.mime.text import MIMEText
 from optparse import OptionParser
 
@@ -41,7 +40,6 @@ class Store(object):
 
   def __init__(self, store_file):
     self.store_file = store_file
-    self.dtg = datetime.now().strftime('%Y-%m-%d')
     self.store = {}
 
   def loadStore(self):
@@ -58,8 +56,8 @@ class Store(object):
       except IOError:
         logging.debug('The store file (%s) is not available for reading.',
             self.store_file)
-        raise FileNotFound('The store file (%s) is not available.'
-            % self.store_file)
+        raise FileNotFound('The store file (%s) is not '
+            'available(missing/perms).' % self.store_file)
       logging.debug('Pickling the store off disk and into ram.')
       self.store = pickle.load(fd)
       fd.close()
@@ -67,7 +65,7 @@ class Store(object):
     else:
       self.store = {}
 
-  def dumpStore(self):
+  def writeStore(self):
     """Write the store to disk.
 
     Returns:
@@ -233,8 +231,10 @@ def main():
   logging.debug('Args passed in: %s', args)
   logging.debug('Options passed in: %s', options)
   if options.dump_store and options.store:
+    # Open the store and read into RAM.
     try:
       store = Store(options.store)
+      store.loadStore()
     except FileNotFound, err:
       logging.debug('Failed to open the store file to dump its content: %s',
           err)
@@ -245,7 +245,7 @@ def main():
 
   if not options.rr:
     logging.debug('No RR was provided to monitor, exiting uncleanly.')
-    print 'Please provide an RR to monitor.'
+    print 'Please provide a RR to monitor.'
     sys.exit(1)
 
   # Load the store from disk.
@@ -253,9 +253,10 @@ def main():
     store = Store(options.store)
     store.loadStore()
   except IOError, err:
-    logging.debug('Failed to open the data store(%s): %s', options.store,
-        err)
+    logging.debug('Failed to open the data store(%s): %s',
+        options.store, err)
     print 'Failed to open the data store(%s): %s' % (options.store, err)
+    sys.exit(1)
 
   # Query for the requested data, and pull the store's content for this RR.
   live_rr = requestRR(options.rr, options.qt)
@@ -267,24 +268,24 @@ def main():
     logging.debug('No currently stored RR for %s, storing the current result.',
         options.rr)
     store.update(options.rr, live_rr)
-    store.dumpStore()
+    store.writeStore()
     logging.debug('Exiting after storing a first-time lookup.')
     sys.exit(1)
 
-  if current_rr != live_rr:
+  # If there are changes to the DNS, alert and store the new value.
+  if current_rr is not live_rr:
     logging.debug('Changes to the RR happened, sending an alert email.')
-    if not (sendAlert(options.fromaddr, options.rr, options.email,
-        requestRR(options.rr, options.qt, False))):
+    new_value = requestRR(options.rr, options.qt, hash=False)
+    if not (sendAlert(options.fromaddr, options.rr, options.email, new_value)):
       logging.debug('Alert! the RR changed.')
-      logging.debug('Save:\n\t%s\nLive:\n\t%s', current_rr, live_rr)
-      logging.debug('Resulting RR: %s', requestRR(options.rr,
-                                                  options.qt,
-                                                  False))
+      logging.debug('Previously saved value:\n\t%s\nNew Value:\n\t%s',
+          current_rr, live_rr)
+      logging.debug('Resulting RR: %s', new_value)
       logging.debug('Sending of email failed.')
     else:
       logging.debug('Successfully sent email, storing the changed RR data.')
       store.update(options.rr, live_rr)
-      store.dumpStore()
+      store.writeStore()
   else:
     logging.debug('No change in RR')
 
