@@ -2,7 +2,7 @@
 
 = Introduction =
 
-A simple script that can monitor over time an RR. For example, if today:
+A simple script that can monitor a DNS RR over time. For example, if today:
 
 www.google.com IN TXT "192.168.0.1/32"
 
