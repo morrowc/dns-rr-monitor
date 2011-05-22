@@ -1,4 +1,4 @@
-#summary Introduction to the dns_rr_monitor.py program.
+#summary Introduction to the dns_watcher.py program.
 
 = Introduction =
 
