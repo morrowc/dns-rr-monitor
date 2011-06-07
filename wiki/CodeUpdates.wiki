@@ -1,0 +1,7 @@
+#Code change process
+
+Happy to accept changes to this code, please use the codereview
+system:
+    http://netman-code.appspot.com/
+
+
