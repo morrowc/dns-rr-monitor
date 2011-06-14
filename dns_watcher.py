@@ -66,7 +66,7 @@ class Store(object):
       self.store = {}
 
   def writeStore(self):
-    """Write the store to disk.
+    """Write the store of historical data to disk.
 
     Returns:
       a boolean, true if the file is written, false otherwise.
